@@ -24,11 +24,11 @@ public class StudyDashboard {
         GitHub gitHub = GitHub.connect();
         GHRepository repository = gitHub.getRepository("whiteship/live-study");
         GHIssue issue = repository.getIssue(30);
-
-        List<GHIssueComment> comments = issue.getComments();
-        for (GHIssueComment comment : comments) {
-            usernames.add(comment.getUserName());
-            this.reviews.add(comment.getBody());
+        //함수명이 loadReviews인데 내부에 review가 없고 comment만 있음 comment가 맞지만 review한 comment이므로 review로 변경
+        List<GHIssueComment> reviews = issue.getComments();
+        for (GHIssueComment review : reviews) {
+            usernames.add(review.getUserName());
+            this.reviews.add(review.getBody());
         }
     }
 
