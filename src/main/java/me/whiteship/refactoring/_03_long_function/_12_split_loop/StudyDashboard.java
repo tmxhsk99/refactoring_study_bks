@@ -45,24 +45,36 @@ public class StudyDashboard {
                     try {
                         GHIssue issue = ghRepository.getIssue(eventId);
                         List<GHIssueComment> comments = issue.getComments();
-                        Date firstCreatedAt = null;
-                        Participant first = null;
-
-                        for (GHIssueComment comment : comments) {
-                            Participant participant = findParticipant(comment.getUserName(), participants);
-                            participant.setHomeworkDone(eventId);
-
-                            if (firstCreatedAt == null || comment.getCreatedAt().before(firstCreatedAt)) {
-                                firstCreatedAt = comment.getCreatedAt();
-                                first = participant;
-                            }
-                        }
+                        Participant first = getFirstParticipant(comments, getParticipant(comments));
 
                         firstParticipantsForEachEvent[eventId - 1] = first;
                         latch.countDown();
                     } catch (IOException e) {
                         throw new IllegalArgumentException(e);
                     }
+
+                }
+
+                private Participant getFirstParticipant(List<GHIssueComment> comments, Participant participant) throws IOException {
+                    Date firstCreatedAt = null;
+                    Participant first = null;
+                    for (GHIssueComment comment : comments)
+                    {
+                        if (firstCreatedAt == null || comment.getCreatedAt().before(firstCreatedAt)) {
+                            firstCreatedAt = comment.getCreatedAt();
+                            first = participant;
+                        }
+                    }
+                    return first;
+                }
+
+                private Participant getParticipant(List<GHIssueComment> comments) {
+                    Participant participant = null;
+                    for (GHIssueComment comment : comments) {
+                        participant = findParticipant(comment.getUserName(), participants);
+                        participant.setHomeworkDone(eventId);
+                    }
+                    return participant;
                 }
             });
         }
